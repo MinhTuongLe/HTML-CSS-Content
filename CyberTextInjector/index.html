@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber-Text Injector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0b10;
+            --panel-bg: rgba(20, 22, 30, 0.8);
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #00ff88; /* Cyber Green */
+            --secondary: #00e5ff; /* Cyber Blue */
+            --cursor: #fff;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: var(--bg);
+            color: #eee;
+            font-family: 'Fira Code', monospace;
+            display: flex;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- LEFT PANEL: INPUT --- */
+        .input-panel {
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        h2 {
+            margin: 0 0 20px 0;
+            color: var(--primary);
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: '';
+            display: block;
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            border-radius: 50%;
+        }
+
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        textarea {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--secondary);
+            font-family: inherit;
+            padding: 15px;
+            resize: none;
+            outline: none;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-family: 'Fira Code', monospace;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: var(--primary);
+            color: black;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* --- RIGHT PANEL: OUTPUT --- */
+        .output-panel {
+            position: relative;
+            padding: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        .terminal-window {
+            width: 100%;
+            max-width: 900px;
+            min-height: 400px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 4px;
+            position: relative;
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.1);
+            overflow: hidden;
+            transform: rotateX(5deg); /* Slight 3D tilt */
+            transition: transform 0.3s;
+        }
+
+        .terminal-window:hover {
+            transform: rotateX(0deg) scale(1.02);
+            border-color: var(--primary);
+        }
+
+        /* Scanline Overlay */
+        .terminal-window::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .output-content {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: var(--primary);
+            text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+            min-height: 50px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 12px;
+            height: 24px;
+            background: var(--primary);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Glitch Decode Effect Classes */
+        .decoding {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Controls -->
+        <div class="input-panel">
+            <h2>// Input Source</h2>
+            <div class="input-group">
+                <textarea id="textInput" placeholder="Enter transmission data...">System initialization sequence...
+Loading cognitive modules...
+Access granted.</textarea>
+            </div>
+            
+            <div class="controls">
+                <button onclick="startSequence()">>> INJECT DATA</button>
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 0.8rem; color: #555;">
+                <p>MODE: DECODER_V2</p>
+                <p>STATUS: STANDBY</p>
+                <p>LATENCY: 12ms</p>
+            </div>
+        </div>
+
+        <!-- Output Stage -->
+        <div class="output-panel">
+            <div class="terminal-window">
+                <div class="output-content" id="output"></div>
+                <!-- Cursor is appended via JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>/?1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const outputEl = document.getElementById('output');
+        const inputEl = document.getElementById('textInput');
+        
+        let interval;
+        let isRunning = false;
+        
+        // Sound Gen
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioContext();
+
+        function playClick() {
+            if (ctx.state === 'suspended') ctx.resume();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.setValueAtTime(800 + Math.random()*200, ctx.currentTime);
+            osc.type = 'square';
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.05);
+        }
+
+        function startSequence() {
+            if(isRunning) clearInterval(interval);
+            isRunning = true;
+            
+            const rawText = inputEl.value;
+            outputEl.innerHTML = '<span class="cursor"></span>'; // Reset
+            
+            let currentIndex = 0;
+            const speed = 5; // ULTRA FAST typing speed ms per char
+            
+            // We maintain the displayed text in an array
+            // Decoded chars stay fixed, next char glitches
+            
+            let currentTextObj = []; 
+
+            // Initialize processing loop
+            function processNextChar() {
+                if (currentIndex >= rawText.length) {
+                    isRunning = false;
+                    return;
+                }
+
+                const targetChar = rawText[currentIndex];
+                
+                // If Newline
+                if (targetChar === '\n') {
+                    currentTextObj.push({ char: '<br>', isDecoded: true });
+                    currentIndex++;
+                    renderHTML(currentTextObj);
+                    setTimeout(processNextChar, speed * 2);
+                    return;
+                }
+
+                // Glitch Effect for the current character
+                let cycles = 0;
+                let maxCycles = 1 + Math.floor(Math.random() * 3); // Very short scramble (1-3 frames)
+                
+                // Placeholder for new char
+                currentTextObj.push({ char: '', isDecoded: false });
+                
+                const glitchInterval = setInterval(() => {
+                    cycles++;
+                    
+                    // Update the last character (the one currently being decoded)
+                    if (cycles < maxCycles) {
+                        currentTextObj[currentIndex].char = symbols[Math.floor(Math.random() * symbols.length)];
+                        // Reduce sound frequency to avoid audio glitches at high speeds
+                        if(Math.random() > 0.5) playClick(); 
+                    } else {
+                        currentTextObj[currentIndex].char = targetChar;
+                        currentTextObj[currentIndex].isDecoded = true;
+                        clearInterval(glitchInterval);
+                        
+                        // Move to next
+                        currentIndex++;
+                        renderHTML(currentTextObj);
+                        setTimeout(processNextChar, speed);
+                    }
+                    renderHTML(currentTextObj);
+                }, 15); // Faster refresh rate (15ms)
+                
+            }
+
+            processNextChar();
+        }
+
+        function renderHTML(textArray) {
+            // Build the HTML string
+            let html = '';
+            textArray.forEach(item => {
+                if(item.char === '<br>') {
+                    html += '<br>';
+                } else if (!item.isDecoded) {
+                    html += `<span class="decoding">${item.char}</span>`;
+                } else {
+                    html += item.char;
+                }
+            });
+            // Append cursor at the end
+            html += '<span class="cursor"></span>';
+            outputEl.innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyper-Space Upload Portal</title>
+    <style>
+        :root {
+            --bg-deep: #050510;
+            --primary: #00f3ff;
+            --secondary: #bd00ff;
+            --success: #00ff88;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #8b9bb4;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: var(--bg-deep);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* Ambient Background */
+        .ambient-glow {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at 50% 50%, 
+                rgba(0, 243, 255, 0.05) 0%, 
+                rgba(189, 0, 255, 0.05) 50%, 
+                transparent 70%);
+            animation: pulse-bg 10s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes pulse-bg {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        /* Upload Card Container */
+        .upload-card {
+            width: 480px;
+            padding: 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-card:hover {
+            transform: translateY(-5px) rotateX(2deg);
+            box-shadow: 0 30px 60px rgba(0, 243, 255, 0.15), 
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 243, 255, 0.3);
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            margin-top: 30px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 40px 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--primary);
+            background: rgba(0, 243, 255, 0.05);
+            transform: scale(0.98);
+        }
+
+        /* 3D Holographic Icon */
+        .holo-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: holo-float 4s ease-in-out infinite;
+        }
+
+        .holo-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300f3ff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E") no-repeat center/contain;
+            filter: drop-shadow(0 0 10px var(--primary));
+        }
+
+        .holo-layer:nth-child(2) {
+            transform: translateZ(10px);
+            opacity: 0.5;
+            filter: drop-shadow(0 0 5px var(--secondary));
+        }
+
+        .holo-layer:nth-child(3) {
+            transform: translateZ(20px);
+            opacity: 0.3;
+        }
+
+        @keyframes holo-float {
+            0%, 100% { transform: translateY(0) rotateY(0deg); }
+            50% { transform: translateY(-10px) rotateY(10deg); }
+        }
+
+        /* Text Styling */
+        h2 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 10px 0 0;
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: 500;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 4px;
+        }
+
+        /* Upload Progress State */
+        .upload-state {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        .progress-track {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            box-shadow: 0 0 20px var(--primary);
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 1s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .status-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Scanning Grid Effect */
+        .scan-grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .drop-zone.drag-over .scan-grid {
+            opacity: 1;
+            animation: grid-scroll 2s linear infinite;
+        }
+
+        @keyframes grid-scroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(20px); }
+        }
+
+        /* Input */
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Success State */
+        .success-icon {
+            display: none;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: var(--success);
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px var(--success);
+            animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .success-icon svg {
+            width: 30px;
+            height: 30px;
+            stroke: #000;
+            stroke-width: 3;
+        }
+
+        @keyframes pop-in {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="ambient-glow"></div>
+
+    <div class="upload-card" id="uploadCard">
+        
+        <!-- Default State -->
+        <div id="defaultView">
+            <div class="holo-icon">
+                <div class="holo-layer"></div>
+                <div class="holo-layer"></div>
+                <div class="holo-layer"></div>
+            </div>
+            <h2>Upload Files</h2>
+            <p>Drag & drop or <span class="highlight">browse</span> to upload</p>
+            
+            <div class="drop-zone" id="dropZone">
+                <div class="scan-grid"></div>
+                <p style="margin: 0; opacity: 0.6; font-size: 0.85rem;">Support: JPG, PNG, PDF (Max 50MB)</p>
+            </div>
+            <input type="file" id="fileInput">
+        </div>
+
+        <!-- Uploading State -->
+        <div class="upload-state" id="uploadState">
+            <div class="file-info">
+                <span id="fileName">data-core-v2.zip</span>
+                <span id="percent">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="status-text">
+                <span id="statusMessage">Encrypting...</span>
+                <span id="fileSize">0 MB / 150 MB</span>
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div id="successView" style="display: none; padding-top: 20px;">
+            <div class="success-icon" style="display: flex;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2 style="color: var(--success);">Transfer Complete</h2>
+            <p>Data securely stored in the quantum vault.</p>
+            <button onclick="resetUpload()" style="margin-top: 20px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s;">Upload Another</button>
+        </div>
+
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadCard = document.getElementById('uploadCard');
+        const defaultView = document.getElementById('defaultView');
+        const uploadState = document.getElementById('uploadState');
+        const successView = document.getElementById('successView');
+        const progressBar = document.getElementById('progressBar');
+        const percentText = document.getElementById('percent');
+        const fileNameText = document.getElementById('fileName');
+        const statusMessage = document.getElementById('statusMessage');
+
+        // Trigger file input when clicking browse
+        document.querySelector('.highlight').addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // Drag Events
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('drag-over');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('drag-over');
+            }, false);
+        });
+
+        // Drop Event
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if(files.length) handleFile(files[0]);
+        });
+
+        // File Input Change
+        fileInput.addEventListener('change', (e) => {
+            if(e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            // UI Transition
+            defaultView.style.display = 'none';
+            uploadState.style.display = 'block';
+            fileNameText.innerText = file.name;
+            
+            // Simulate Upload
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 5;
+                if (progress > 100) progress = 100;
+
+                progressBar.style.width = `${progress}%`;
+                percentText.innerText = `${Math.round(progress)}%`;
+
+                // Random status messages
+                if(progress < 30) statusMessage.innerText = "Analyzing particles...";
+                else if(progress < 60) statusMessage.innerText = "Quantizing data...";
+                else if(progress < 90) statusMessage.innerText = "Uploading to nebulas...";
+                else statusMessage.innerText = "Finalizing sequence...";
+
+                if (progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        uploadState.style.display = 'none';
+                        successView.style.display = 'block';
+                    }, 500);
+                }
+            }, 100);
+        }
+
+        window.resetUpload = () => {
+            successView.style.display = 'none';
+            defaultView.style.display = 'block';
+            progressBar.style.width = '0%';
+            fileInput.value = '';
+        }
+    </script>
+</body>
+</html>

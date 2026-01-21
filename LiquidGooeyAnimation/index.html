@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquid Gooey Animation</title>
+    <style>
+        /* CSS dựa trên hình ảnh bạn cung cấp */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Đây là "phép thuật" tạo hiệu ứng Gooey */
+            filter: blur(15px) contrast(30);
+            background: #fff;
+        }
+
+        .ball {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            position: absolute;
+            animation: move 4s infinite alternate ease-in-out;
+        }
+
+        .ball-1 {
+            background: #000;
+        }
+
+        .ball-2 {
+            background: #f00;
+            animation-delay: -2s;
+        }
+
+        @keyframes move {
+            from {
+                transform: translateX(-100px) scale(1.1);
+            }
+            to {
+                transform: translateX(100px) scale(0.9);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="ball ball-1"></div>
+        <div class="ball ball-2"></div>
+    </div>
+
+</body>
+</html>
