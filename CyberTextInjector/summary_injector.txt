@@ -1,49 +1,62 @@
-### CORE LOGIC SUMMARY ###
+### CYBER-INJECTOR: COMPACT EDITION ###
 
-1. HTML (Structure)
+1. HTML (Premium HUD Structure)
 <div class="container">
-    <div class="input-panel">
-        <textarea id="textInput">...</textarea>
-        <button onclick="startSequence()">>> INJECT DATA</button>
+    <div class="header">
+        <h1>Cyber-Injector</h1>
+        <div class="system-status">...</div>
     </div>
-    <div class="output-panel">
-        <div class="terminal-window">
-            <div class="output-content" id="output"></div>
+    <div class="main-content">
+        <div class="input-area">
+            <textarea id="textInput">...</textarea>
+            <button onclick="startSequence()">>> INJECT DATA</button>
+        </div>
+        <div class="output-area">
+            <div class="terminal-hud">
+                <div class="output-content" id="output"></div>
+            </div>
         </div>
     </div>
 </div>
 
-2. CSS (Key Styles)
-.terminal-window {
-    transform: rotateX(5deg); /* 3D Tilt */
-    background: rgba(0, 0, 0, 0.6);
-    box-shadow: 0 0 50px rgba(0, 255, 136, 0.1);
+2. CSS (Premium Aesthetics)
+.container {
+    max-width: 900px;
+    background: rgba(10, 12, 18, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(0, 255, 136, 0.15);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
 }
-.terminal-window::after {
-    /* CRT Scanline Overlay */
-    content: ''; position: absolute; top:0; left:0;
-    background: linear-gradient(...), linear-gradient(90deg, ...);
-    background-size: 100% 2px, 3px 100%;
+.terminal-hud::after {
+    /* CRT Scanline & Grain Overlay */
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0,0,0,0.1) 50%), ...;
+    background-size: 100% 4px, 3px 100%;
 }
-.decoding { color: var(--secondary); font-weight: bold; } /* Glitch state */
+.shake { animation: shake 0.4s both; } /* Impact effect */
 
-3. JS (Logic)
-function processNextChar() {
-    // Handling glitched decoding effect
-    const glitchInterval = setInterval(() => {
-        cycles++;
+3. JS (Enhanced Logic)
+function startSequence() {
+    // Impact shake effect
+    container.classList.add('shake');
+    setTimeout(() => container.classList.remove('shake'), 400);
+    
+    // Character-by-character decoding logic
+    function processNextChar() {
         if (cycles < maxCycles) {
-            // Show random symbol
-            currentTextObj[currentIndex].char = symbols[Math.floor(Math.random() * symbols.length)];
-            if(Math.random() > 0.5) playClick(); // Sound effect
+            // Show random symbols
+            currentTextObj[currentIndex].char = symbols[random];
+            if (Math.random() > 0.6) playClick(); // SFX
         } else {
-            // Reveal actual char
+            // Reveal actual char and recurse
             currentTextObj[currentIndex].char = targetChar;
-            currentTextObj[currentIndex].isDecoded = true;
-            clearInterval(glitchInterval);
             currentIndex++;
-            processNextChar(); // Recursion for next char
+            processNextChar();
         }
-        renderHTML(currentTextObj);
-    }, 15);
+        renderHTML();
+    }
+}
+
+function renderHTML() {
+    // ... update output content
+    terminalHud.scrollTop = terminalHud.scrollHeight; // Auto-scroll
 }
