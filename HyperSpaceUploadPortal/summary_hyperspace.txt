@@ -1,0 +1,67 @@
+### CORE LOGIC SUMMARY ###
+
+1. HTML (Structure)
+<div class="upload-card" id="uploadCard">
+    <!-- Default View -->
+    <div id="defaultView">
+        <div class="holo-icon"></div>
+        <div class="drop-zone" id="dropZone"></div>
+        <input type="file" id="fileInput">
+    </div>
+
+    <!-- Upload State -->
+    <div class="upload-state" id="uploadState">
+        <div class="progress-track">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="status-text"><span id="statusMessage"></span></div>
+    </div>
+
+    <!-- Success View -->
+    <div id="successView">Transfer Complete</div>
+</div>
+
+2. CSS (Key Styles)
+.upload-card {
+    backdrop-filter: blur(20px);
+    background: var(--card-bg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    perspective: 1000px; /* For 3D Tilt */
+}
+.upload-card:hover { transform: translateY(-5px) rotateX(2deg); }
+
+.holo-icon {
+    /* 3D Hologram Effect */
+    transform-style: preserve-3d;
+    animation: holo-float 4s ease-in-out infinite;
+}
+.holo-layer:nth-child(2) { transform: translateZ(10px); opacity: 0.5; }
+
+.progress-bar::after {
+    /* Shimmer Effect */
+    content: ''; position: absolute; ...
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    animation: shimmer 1s infinite;
+}
+
+3. JS (Logic)
+function handleFile(file) {
+    // Switch UI
+    defaultView.style.display = 'none';
+    uploadState.style.display = 'block';
+    
+    // Simulate Upload Progress
+    const interval = setInterval(() => {
+        progress += Math.random() * 5;
+        progressBar.style.width = \`\${progress}%\`;
+        
+        // Update Status Text based on %
+        if(progress < 30) statusMessage.innerText = "Analyzing particles...";
+        else if(progress < 90) statusMessage.innerText = "Uploading to nebulas...";
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            showSuccess();
+        }
+    }, 100);
+}

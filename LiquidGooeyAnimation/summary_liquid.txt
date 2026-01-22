@@ -1,0 +1,33 @@
+### CORE LOGIC SUMMARY ###
+
+1. HTML (Structure)
+<div class="container">
+    <div class="ball ball-1"></div>
+    <div class="ball ball-2"></div>
+</div>
+
+2. CSS (Key Styles)
+.container {
+    /* The Gooey Trick */
+    filter: blur(15px) contrast(30); 
+    background: #fff;
+    display: flex; justify-content: center; align-items: center;
+}
+
+.ball {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    position: absolute;
+    animation: move 4s infinite alternate ease-in-out;
+}
+
+/* Move balls against each other to merge */
+.ball-2 { animation-delay: -2s; }
+
+@keyframes move {
+    from { transform: translateX(-100px) scale(1.1); }
+    to { transform: translateX(100px) scale(0.9); }
+}
+
+3. JS (Logic)
+No JS used. Pure CSS Filter Physics.

@@ -1,0 +1,50 @@
+### CORE LOGIC SUMMARY ###
+
+1. HTML (Structure)
+<body class="morning"> <!-- Dynamic Class -->
+    <div class="clouds-container"></div>
+    <div class="rain" id="rain-layer"></div>
+    <div class="weather-visual"><i class="fas fa-cloud-sun"></i></div>
+    
+    <div class="info-card">
+        <h2 id="temp-number">28</h2>
+        <div class="weather-details">...</div>
+    </div>
+
+    <div class="navigator">
+        <!-- Switcher Buttons -->
+        <div class="nav-btn" onclick="setWeather('morning', this)">...</div>
+    </div>
+</body>
+
+2. CSS (Key Styles)
+body {
+    transition: background 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Weather Themes */
+body.morning { background: linear-gradient(180deg, #1e90ff 0%, #70a1ff 100%); }
+body.night { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); }
+
+/* Animations */
+.cloud { animation: moveClouds 25s linear infinite; }
+.drop { animation: fall linear infinite; } /* Rain */
+
+3. JS (Logic)
+const weatherStates = {
+    morning: { temp: 28, text: "Pleasant Morning", rain: false, ... },
+    evening: { temp: 29, text: "Tropical Rain", rain: true, ... },
+};
+
+function setWeather(phase, btn) {
+    // 1. Update Body Theme
+    document.body.className = phase;
+    
+    // 2. Update Data points
+    const state = weatherStates[phase];
+    currentBaseTemp = state.temp;
+    document.getElementById('weather-text').innerText = state.text;
+    
+    // 3. Handle Rain Effect
+    if (state.rain) spawnRain();
+    else hideRain();
+}

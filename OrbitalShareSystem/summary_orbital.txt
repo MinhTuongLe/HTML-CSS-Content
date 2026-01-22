@@ -1,0 +1,60 @@
+### CORE LOGIC SUMMARY ###
+
+1. HTML (Structure)
+<div class="u-universe" id="universe">
+    <!-- Center Button -->
+    <button class="share-btn" id="shareTrigger">
+        <i class="fas fa-share-alt"></i>
+    </button>
+    
+    <!-- Satellites -->
+    <button class="social-btn" data-tooltip="Facebook"><i class="fab fa-facebook-f"></i></button>
+    <button class="social-btn" data-tooltip="Twitter"><i class="fab fa-twitter"></i></button>
+    <!-- ... -->
+</div>
+
+2. CSS (Key Styles)
+.u-universe { filter: drop-shadow(0 0 20px rgba(108, 92, 231, 0.3)); }
+
+.social-btn {
+    position: absolute;
+    /* Initial State: Hidden & Centered */
+    transform: translate(0, 0) scale(0.5);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.u-universe.active .social-btn {
+    /* Active state handled via JS for precise positioning */
+}
+
+3. JS (Logic)
+// 1. Calculate Positions (Radial Layout)
+const angleStep = (2 * Math.PI) / totalItems; 
+socials.forEach((btn, index) => {
+    const angle = (index * angleStep) - (Math.PI / 2);
+    basePositions[index] = { 
+        x: radius * Math.cos(angle), 
+        y: radius * Math.sin(angle) 
+    };
+});
+
+// 2. Magnetic Effect Loop
+function loop() {
+    if(!isOpen) return;
+    socials.forEach((btn, index) => {
+        // Calculate distance from mouse to button anchor
+        const dist = Math.hypot(mouseX - anchorX, mouseY - anchorY);
+        
+        if (dist < 80) {
+            // Pull towards mouse
+            const dx = (mouseX - anchorX) * 0.4;
+            const dy = (mouseY - anchorY) * 0.4;
+            btn.style.transform = \`translate(\${base.x + dx}px, \${base.y + dy}px) scale(1.2)\`;
+        } else {
+            // Return to orbit
+            btn.style.transform = \`translate(\${base.x}px, \${base.y}px) scale(1)\`;
+        }
+    });
+    requestAnimationFrame(loop);
+}

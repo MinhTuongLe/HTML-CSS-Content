@@ -1,0 +1,49 @@
+### CORE LOGIC SUMMARY ###
+
+1. HTML (Structure)
+<div class="container">
+    <div class="input-panel">
+        <textarea id="textInput">...</textarea>
+        <button onclick="startSequence()">>> INJECT DATA</button>
+    </div>
+    <div class="output-panel">
+        <div class="terminal-window">
+            <div class="output-content" id="output"></div>
+        </div>
+    </div>
+</div>
+
+2. CSS (Key Styles)
+.terminal-window {
+    transform: rotateX(5deg); /* 3D Tilt */
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 50px rgba(0, 255, 136, 0.1);
+}
+.terminal-window::after {
+    /* CRT Scanline Overlay */
+    content: ''; position: absolute; top:0; left:0;
+    background: linear-gradient(...), linear-gradient(90deg, ...);
+    background-size: 100% 2px, 3px 100%;
+}
+.decoding { color: var(--secondary); font-weight: bold; } /* Glitch state */
+
+3. JS (Logic)
+function processNextChar() {
+    // Handling glitched decoding effect
+    const glitchInterval = setInterval(() => {
+        cycles++;
+        if (cycles < maxCycles) {
+            // Show random symbol
+            currentTextObj[currentIndex].char = symbols[Math.floor(Math.random() * symbols.length)];
+            if(Math.random() > 0.5) playClick(); // Sound effect
+        } else {
+            // Reveal actual char
+            currentTextObj[currentIndex].char = targetChar;
+            currentTextObj[currentIndex].isDecoded = true;
+            clearInterval(glitchInterval);
+            currentIndex++;
+            processNextChar(); // Recursion for next char
+        }
+        renderHTML(currentTextObj);
+    }, 15);
+}

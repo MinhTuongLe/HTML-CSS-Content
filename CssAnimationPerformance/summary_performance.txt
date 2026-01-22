@@ -1,0 +1,35 @@
+### CORE LOGIC SUMMARY ###
+
+1. HTML (Structure)
+<section class="performance-vertical">
+    <div class="comparison-item">
+        <span class="label bad-label">❌ Bad (Margin-Left)</span>
+        <div class="track"><div class="box-perf bad"></div></div>
+    </div>
+
+    <div class="comparison-item">
+        <span class="label good-label">✅ Good (Transform)</span>
+        <div class="track"><div class="box-perf good"></div></div>
+    </div>
+</section>
+
+2. CSS (Key Styles)
+/* BAD: Triggers Layout/Reflow */
+.bad {
+    animation: laggy 1.5s infinite ease-in-out;
+}
+@keyframes laggy {
+    50% { margin-left: calc(100% - 60px); }
+}
+
+/* GOOD: Composite Only (GPU) */
+.good {
+    animation: smooth 1.5s infinite ease-in-out;
+    will-change: transform; /* Hint to browser */
+}
+@keyframes smooth {
+    50% { transform: translateX(calc(400px - 60px)); }
+}
+
+3. JS (Logic)
+No JS used. CSS Performance Demonstration.

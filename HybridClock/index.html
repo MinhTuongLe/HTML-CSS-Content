@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Clear Hybrid Clock</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--bg);
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .tilt-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            display: grid;
+            place-items: center;
+            transform-style: preserve-3d;
+        }
+
+        /* Mặt đồng hồ */
+        .clock-face {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            z-index: 1; /* Lớp nền */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+        }
+
+        /* Container cho các kim - Nằm giữa lớp nền và lớp chữ */
+        .hand-wrapper {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            z-index: 5; /* Lớp giữa */
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            transform-origin: bottom center;
+            border-radius: 4px;
+        }
+        
+        .hour { width: 10px; height: 90px; background: #fff; }
+        .min  { width: 6px; height: 130px; background: #00d2ff; filter: drop-shadow(0 0 8px #00d2ff); }
+        .sec  { width: 2px; height: 155px; background: #ff0055; z-index: 6; }
+
+        /* KHU VỰC ĐIỆN TỬ - QUAN TRỌNG: Phải nằm trên cùng */
+        .digital-display {
+            position: absolute;
+            bottom: 60px; /* Đẩy xuống dưới tâm để tránh bị kim che khuất */
+            z-index: 20;  /* Lớp cao nhất */
+            text-align: center;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            pointer-events: none;
+            transform: translateZ(50px); /* Đẩy lên phía trước trong không gian 3D */
+        }
+
+        #time {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+        }
+
+        #date {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        /* SVG Rings */
+        svg { position: absolute; transform: rotate(-90deg); z-index: 0; }
+        circle { fill: none; stroke-width: 4; stroke-linecap: round; }
+        .ring-sec { stroke-dasharray: 1382; stroke: rgba(255, 255, 255, 0.1); }
+        .ring-min { stroke-dasharray: 1193; stroke: #00d2ff; filter: drop-shadow(0 0 5px #00d2ff); }
+
+        .center-pin {
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            z-index: 100;
+            box-shadow: 0 0 10px #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="tilt-container" id="clock-widget">
+        <svg width="500" height="500">
+            <circle cx="250" cy="250" r="220" class="ring-sec" id="p-sec"></circle>
+            <circle cx="250" cy="250" r="190" class="ring-min" id="p-min"></circle>
+        </svg>
+
+        <div class="clock-face">
+            <div class="center-pin"></div>
+        </div>
+
+        <div class="hand-wrapper"><div class="hand hour" id="h"></div></div>
+        <div class="hand-wrapper"><div class="hand min" id="m"></div></div>
+        <div class="hand-wrapper"><div class="hand sec" id="s"></div></div>
+
+        <div class="digital-display">
+            <div id="time">00:00:00</div>
+            <div id="date">JANUARY 21, 2026</div>
+        </div>
+    </div>
+
+    <script>
+        const widget = document.getElementById('clock-widget');
+        
+        // Hiệu ứng nghiêng 3D
+        document.addEventListener('mousemove', (e) => {
+            let x = (window.innerWidth / 2 - e.pageX) / 20;
+            let y = (window.innerHeight / 2 - e.pageY) / 20;
+            widget.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+        });
+
+        function update() {
+            const now = new Date();
+            const hh = now.getHours();
+            const mm = now.getMinutes();
+            const ss = now.getSeconds();
+            const ms = now.getMilliseconds();
+
+            // Xoay kim mượt
+            const sDeg = (ss * 6) + (ms * 0.006);
+            const mDeg = (mm * 6) + (ss * 0.1);
+            const hDeg = (hh * 30) + (mm * 0.5);
+
+            document.getElementById('s').style.transform = `rotate(${sDeg}deg)`;
+            document.getElementById('m').style.transform = `rotate(${mDeg}deg)`;
+            document.getElementById('h').style.transform = `rotate(${hDeg}deg)`;
+
+            // Vòng tròn progress
+            const sOffset = 1382 - (1382 * (ss + ms/1000)) / 60;
+            const mOffset = 1193 - (1193 * (mm + ss/60)) / 60;
+            document.getElementById('p-sec').style.strokeDashoffset = sOffset;
+            document.getElementById('p-min').style.strokeDashoffset = mOffset;
+
+            // Cập nhật text điện tử
+            const displayH = hh % 12 || 12;
+            const displayM = mm.toString().padStart(2, '0');
+            const displayS = ss.toString().padStart(2, '0');
+            const ampm = hh >= 12 ? 'PM' : 'AM';
+            
+            document.getElementById('time').innerText = `${displayH}:${displayM}:${displayS} ${ampm}`;
+            
+            const options = { month: 'long', day: 'numeric', year: 'numeric' };
+            document.getElementById('date').innerText = now.toLocaleDateString('en-US', options);
+        }
+
+        setInterval(update, 20);
+        update();
+    </script>
+</body>
+</html>

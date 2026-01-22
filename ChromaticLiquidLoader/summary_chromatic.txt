@@ -1,0 +1,53 @@
+### CORE LOGIC SUMMARY ###
+
+1. HTML (Structure)
+<svg class="filter-container">
+    <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" result="goo" />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+    </filter>
+</svg>
+
+<div class="loader-container">
+    <div class="core"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <!-- ... more orbs ... -->
+</div>
+
+2. CSS (Key Styles)
+.loader-container {
+    filter: url('#goo') saturate(2) contrast(1.2); 
+    animation: rotate-all 10s linear infinite;
+}
+
+.core {
+    /* Central glowing core */
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    box-shadow: 0 0 30px rgba(255,255,255,0.8);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.orb::before {
+    /* Orbiting particles */
+    content: ''; position: absolute;
+    width: var(--particle-size); height: var(--particle-size);
+    border-radius: 50%;
+    box-shadow: 0 0 30px currentColor; 
+    animation: orb-move 3s ease-in-out infinite;
+}
+
+@keyframes orb-move {
+    0%, 100% { top: 0; background-color: currentColor; }
+    50% { 
+        top: calc(50% - var(--particle-size)/2); /* Move to center */
+        width: calc(var(--particle-size) * 1.5); /* Grow on merge */
+        background-color: #fff; 
+    }
+}
+
+3. JS (Logic)
+No JS used. Pure CSS Animation + SVG Filter.

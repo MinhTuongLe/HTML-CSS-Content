@@ -1,0 +1,49 @@
+### CORE LOGIC SUMMARY ###
+
+1. HTML (Structure)
+<p>
+    Traditional text is static. Our engine makes it <span class="word-trigger">Dynamic</span>.
+</p>
+
+<div id="insight-card">
+    <div class="card-header"><div class="chip">Insight</div></div>
+    <span class="selected-term" id="term-title">Term</span>
+    <div class="explanation-text" id="term-desc">Definition...</div>
+</div>
+
+2. CSS (Key Styles)
+#insight-card {
+    position: fixed;
+    backdrop-filter: blur(25px) saturate(150%);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
+    opacity: 0; transform: translateY(15px) scale(0.98);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+#insight-card.active {
+    opacity: 1; transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+.word-trigger { border-bottom: 2px solid var(--accent); cursor: help; }
+
+3. JS (Logic)
+const database = {
+    "dynamic": "Refers to systems characterized by constant change...",
+    // ...
+};
+
+document.addEventListener('mouseup', (e) => {
+    const selection = window.getSelection();
+    const text = selection.toString().trim().toLowerCase();
+
+    if (text.length > 0 && database.hasOwnProperty(text)) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect(); // Get selection coords
+
+        // Position Card above selection
+        card.style.left = \`\${rect.left + (rect.width / 2) - (cardWidth / 2)}px\`;
+        card.style.top = \`\${rect.top - cardHeight - 24}px\`;
+        
+        card.classList.add('active');
+    }
+});

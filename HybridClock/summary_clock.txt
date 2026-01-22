@@ -1,0 +1,37 @@
+### CORE LOGIC SUMMARY ###
+
+1. HTML (Structure)
+<div class="tilt-container" id="clock-widget">
+    <svg width="500" height="500">
+        <circle class="ring-sec" id="p-sec"></circle>
+        <circle class="ring-min" id="p-min"></circle>
+    </svg>
+    <div class="clock-face"></div>
+    <div class="hand-wrapper"><div class="hand hour" id="h"></div></div>
+    <div class="hand-wrapper"><div class="hand min" id="m"></div></div>
+    <div class="hand-wrapper"><div class="hand sec" id="s"></div></div>
+    <div class="digital-display"><div id="time"></div></div>
+</div>
+
+2. CSS (3D & Positioning)
+body { perspective: 1000px; overflow: hidden; }
+.tilt-container { transform-style: preserve-3d; }
+.clock-face { backdrop-filter: blur(15px); background: var(--glass); }
+.hand { bottom: 50%; transform-origin: bottom center; position: absolute; }
+svg { transform: rotate(-90deg); }
+
+3. JS (Animation & Tilt)
+// 3D Tilt Effect
+document.addEventListener('mousemove', (e) => {
+    let x = (window.innerWidth / 2 - e.pageX) / 20;
+    let y = (window.innerHeight / 2 - e.pageY) / 20;
+    widget.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+});
+
+// Update Function (20ms loop)
+const sDeg = (ss * 6) + (ms * 0.006);
+document.getElementById('s').style.transform = `rotate(${sDeg}deg)`;
+
+// SVG Ring Progress
+const sOffset = 1382 - (1382 * (ss + ms/1000)) / 60;
+document.getElementById('p-sec').style.strokeDashoffset = sOffset;

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Secret to Smooth Animations">
+    <title>CSS Animation Mastery</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0f172a;
+            color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 100px;
+            padding: 50px 0;
+        }
+
+        .performance-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .comparison-item {
+            width: 100%;
+        }
+
+        .label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .bad-label {
+            color: #ff4d4d;
+        }
+
+        .good-label {
+            color: #00ff88;
+        }
+
+        .track {
+            width: 100%;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .box-perf {
+            width: 60px;
+            height: 100%;
+            border-radius: 8px;
+        }
+
+        /* Cách tệ: Làm trình duyệt phải tính toán lại layout (Reflow) */
+        .bad {
+            background: #ff4d4d;
+            animation: laggy 1.5s infinite ease-in-out;
+        }
+
+        @keyframes laggy {
+            0% {
+                margin-left: 0;
+            }
+
+            50% {
+                margin-left: calc(100% - 60px);
+            }
+
+            100% {
+                margin-left: 0;
+            }
+        }
+
+        /* Cách tốt: Chỉ thay đổi lớp hiển thị (Composite) */
+        .good {
+            background: #00ff88;
+            animation: smooth 1.5s infinite ease-in-out;
+            will-change: transform;
+            /* Báo trước cho trình duyệt dùng GPU */
+        }
+
+        @keyframes smooth {
+            0% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(calc(400px - 60px));
+            }
+
+            /* 400px là chiều rộng max */
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive cho di động */
+        @media (max-width: 450px) {
+            @keyframes smooth {
+                50% {
+                    transform: translateX(calc(100vw - 100px));
+                }
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="performance-vertical">
+        <!--<h2>Performance: Margin vs Transform</h2>-->
+
+        <div class="comparison-item">
+            <span class="label bad-label">❌ Bad (Margin-Left) - CPU Heavy</span>
+            <div class="track">
+                <div class="box-perf bad"></div>
+            </div>
+        </div>
+
+        <div class="comparison-item" style="margin-top: 50px;">
+            <span class="label good-label">✅ Good (Transform) - GPU Accelerated</span>
+            <div class="track">
+                <div class="box-perf good"></div>
+            </div>
+        </div>
+    </section>
+
+</body>
+
+</html>
