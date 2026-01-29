@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURAL SPECTRUM | Real-time Audio Frequency Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #020305;
+            --led-on: #00f2ff;
+            --led-off: rgba(0, 242, 255, 0.05);
+            --peak-color: #ff00c8;
+            --accent-glow: rgba(0, 242, 255, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Share Tech Mono', monospace;
+            background-image:
+                linear-gradient(rgba(0, 242, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* --- Scanline Overlay --- */
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg,
+                    rgba(0, 0, 0, 0.1) 0px,
+                    rgba(0, 0, 0, 0.1) 1px,
+                    transparent 1px,
+                    transparent 2px);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* --- Visualizer Container --- */
+        .stage {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .header-info {
+            color: var(--led-on);
+            font-size: 0.8rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--led-on);
+            opacity: 0.7;
+        }
+
+        .visualizer-wrapper {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 250px;
+            padding: 20px;
+            perspective: 500px;
+        }
+
+        /* --- The Digital Bar --- */
+        .bar-container {
+            position: relative;
+            width: 12px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .bar-body {
+            width: 100%;
+            background: linear-gradient(to top,
+                    var(--led-on) 0%,
+                    #7000ff 50%,
+                    var(--peak-color) 100%);
+            /* Creating the Segmented "Digital" look */
+            mask-image: linear-gradient(to bottom,
+                    black 3px,
+                    transparent 3px);
+            mask-size: 100% 5px;
+            /* Each segment is 5px high */
+            box-shadow: 0 0 15px var(--accent-glow);
+            transition: height 0.08s ease-out;
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* Peak Meter Dot */
+        .bar-peak {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: white;
+            box-shadow: 0 0 10px white, 0 0 20px var(--peak-color);
+            border-radius: 1px;
+            z-index: 10;
+        }
+
+        /* Reflection at Bottom */
+        .reflection {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to bottom,
+                    rgba(0, 242, 255, 0.2),
+                    transparent);
+            transform: scaleY(-1);
+            filter: blur(4px);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* --- Ambient Glows --- */
+        .glow-sphere {
+            position: absolute;
+            bottom: -50px;
+            width: 400px;
+            height: 100px;
+            background: radial-gradient(ellipse at center,
+                    rgba(112, 0, 255, 0.2) 0%,
+                    transparent 70%);
+            filter: blur(30px);
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="stage">
+        <div class="header-info">NEURAL SPECTRUM</div>
+
+        <div class="visualizer-wrapper" id="visualizer">
+            <!-- Bars will be injected here -->
+        </div>
+
+        <div class="glow-sphere"></div>
+    </div>
+
+    <script>
+        const container = document.getElementById('visualizer');
+        const count = 40; // High precision bar count
+        const bars = [];
+        const peaks = [];
+        const peakHeights = new Array(count).fill(0);
+        const gravity = 0.5;
+
+        // Build HTML Structure
+        for (let i = 0; i < count; i++) {
+            const barContainer = document.createElement('div');
+            barContainer.className = 'bar-container';
+
+            const peak = document.createElement('div');
+            peak.className = 'bar-peak';
+
+            const body = document.createElement('div');
+            body.className = 'bar-body';
+
+            const reflection = document.createElement('div');
+            reflection.className = 'reflection';
+
+            barContainer.appendChild(peak);
+            barContainer.appendChild(body);
+            barContainer.appendChild(reflection);
+
+            container.appendChild(barContainer);
+
+            bars.push(body);
+            peaks.push(peak);
+        }
+
+        function animate() {
+            const time = Date.now() * 0.005;
+
+            bars.forEach((bar, i) => {
+                // Audio Simulation Math
+                // High energy in the middle (Low freq) and falling towards edges
+                const distFromCenter = Math.abs(i - count / 2) / (count / 2);
+                const envelope = Math.pow(Math.cos(distFromCenter * Math.PI / 2.2), 2);
+
+                let wave = Math.sin(time + i * 0.3) * 50;
+                wave += Math.sin(time * 2.1 + i * 0.7) * 30;
+                wave += Math.random() * 20; // High frequency jitter
+
+                let targetHeight = 10 + (Math.abs(wave) * envelope * 2);
+                targetHeight = Math.min(targetHeight, 220); // Cap it
+
+                // Update Bar Body
+                bar.style.height = `${targetHeight}px`;
+
+                // Update Peak Meter
+                if (targetHeight > peakHeights[i]) {
+                    peakHeights[i] = targetHeight;
+                } else {
+                    peakHeights[i] -= gravity;
+                    if (peakHeights[i] < 0) peakHeights[i] = 0;
+                }
+
+                peaks[i].style.bottom = `${peakHeights[i]}px`;
+
+                // Color variation based on height
+                const opacity = 0.4 + (targetHeight / 250);
+                bar.style.opacity = opacity;
+
+                // Active reflection
+                const reflections = bar.parentElement.querySelector('.reflection');
+                reflections.style.height = `${targetHeight * 0.4}px`;
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,56 @@
+Neural Spectrum | Core Implementation Snippets
+===========================================
+
+1. Digital Segmented UI (CSS Masking)
+-------------------------------------
+```css
+.bar-body {
+    background: linear-gradient(to top, var(--led-on), #7000ff, var(--peak-color));
+    mask-image: linear-gradient(to bottom, black 3px, transparent 3px);
+    mask-size: 100% 5px;
+    transition: height 0.08s ease-out;
+}
+```
+
+2. Peak Gravity Engine
+----------------------
+```javascript
+const gravity = 0.5;
+
+if (targetHeight > peakHeights[i]) {
+    peakHeights[i] = targetHeight;
+} else {
+    peakHeights[i] -= gravity;
+    if (peakHeights[i] < 0) peakHeights[i] = 0;
+}
+peaks[i].style.bottom = `${peakHeights[i]}px`;
+```
+
+3. Audio Simulation Math
+------------------------
+```javascript
+const distFromCenter = Math.abs(i - count / 2) / (count / 2);
+const envelope = Math.pow(Math.cos(distFromCenter * Math.PI / 2.2), 2);
+
+let wave = Math.sin(time + i * 0.3) * 50;
+wave += Math.sin(time * 2.1 + i * 0.7) * 30;
+wave += Math.random() * 20;
+
+let targetHeight = 10 + (Math.abs(wave) * envelope * 2);
+```
+
+4. Professional FX (Scanning & Reflection)
+------------------------------------------
+```css
+/* Scanline Overlay */
+body::after {
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0px, transparent 2px);
+}
+
+/* Ground Reflection */
+.reflection {
+    transform: scaleY(-1);
+    filter: blur(4px);
+    opacity: 0.3;
+}
+```
