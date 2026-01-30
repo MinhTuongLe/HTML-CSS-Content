@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blend Text Loader | Smooth mixing animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0c0c0c;
+            /* Nền đen sâu như mẫu */
+            font-family: 'Arial Black', sans-serif;
+            /* Font dày giống mẫu */
+            overflow: hidden;
+        }
+
+        .loader-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .text {
+            color: #ffffff;
+            /* Chữ trắng thuần */
+            font-size: 100px;
+            /* To, rõ ràng */
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 12px;
+            margin: 0;
+            user-select: none;
+        }
+
+        /* Đốm sáng hình tròn trắng */
+        .spotlight {
+            position: absolute;
+            width: 130px;
+            /* Kích thước khớp với chiều cao chữ */
+            height: 130px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            top: 50%;
+            left: 0;
+
+            /* Căn giữa tâm theo trục dọc */
+            margin-top: -65px;
+
+            /* Kỹ thuật then chốt: Difference */
+            /* Trắng (spotlight) + Đen (nền) = Trắng */
+            /* Trắng (spotlight) + Trắng (chữ) = Đen */
+            mix-blend-mode: difference;
+
+            z-index: 10;
+            pointer-events: none;
+
+            /* Animation mượt mà di chuyển qua lại */
+            animation: moveSpotlight 3s ease-in-out infinite;
+        }
+
+        @keyframes moveSpotlight {
+            0% {
+                left: -10%;
+                transform: translateX(0);
+            }
+
+            50% {
+                left: 110%;
+                transform: translateX(-100%);
+            }
+
+            100% {
+                left: -10%;
+                transform: translateX(0);
+            }
+        }
+
+        /* Tối ưu hóa cho màn hình nhỏ */
+        @media (max-width: 768px) {
+            .text {
+                font-size: 50px;
+                letter-spacing: 5px;
+            }
+
+            .spotlight {
+                width: 70px;
+                height: 70px;
+                margin-top: -35px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="loader-container">
+        <h1 class="text">Loading</h1>
+        <div class="spotlight"></div>
+    </div>
+
+</body>
+
+</html>

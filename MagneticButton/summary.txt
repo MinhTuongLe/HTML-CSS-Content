@@ -1,0 +1,35 @@
+[Component: MagneticButton]
+- Magic: Relative mouse tracking + staggered translation.
+
+[HTML]
+<div class="magnetic-area">
+    <a href="#" class="btn-magnetic">
+        <span class="btn-text">Explore Now</span>
+    </a>
+</div>
+
+[CSS]
+.btn-magnetic {
+    position: relative;
+    will-change: transform;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-text {
+    display: block;
+    pointer-events: none;
+    will-change: transform;
+}
+
+[JavaScript]
+area.addEventListener('mousemove', (e) => {
+    const rect = area.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+
+    // Different multipliers create depth
+    btn.style.transform = `translate(${x * 0.5}px, ${y * 0.5}px)`;
+    text.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+});

@@ -1,0 +1,27 @@
+[Component: NextLevelHover]
+- Magic: Multi-directional reveals + staggered delays.
+
+[HTML]
+<div class="gallery-card">
+    <h2 class="main-title hidden-item">...</h2>
+    <p class="description hidden-item">...</p>
+</div>
+
+[CSS]
+.hidden-item {
+    opacity: 0;
+    transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Entry directions */
+.main-title { transform: translateY(-30px); }
+.description { transform: translateX(-40px); }
+
+/* Staggered reveals */
+.gallery-card:hover .hidden-item {
+    opacity: 1;
+    transform: translate(0);
+}
+
+.gallery-card:hover .main-title { transition-delay: 0.1s; }
+.gallery-card:hover .description { transition-delay: 0.2s; }

@@ -1,0 +1,23 @@
+[Component: BlendTextLoader]
+- Magic: Color inversion via difference blending.
+
+[HTML]
+<div class="loader-container">
+    <h1 class="text">Loading</h1>
+    <div class="spotlight"></div>
+</div>
+
+[CSS]
+.text { color: #fff; }
+
+.spotlight {
+    position: absolute;
+    mix-blend-mode: difference; /* Key: inverts colors on overlap */
+    background-color: #fff;
+    animation: moveSpotlight 3s ease-in-out infinite;
+}
+
+@keyframes moveSpotlight {
+    0%, 100% { left: -10%; }
+    50% { left: 110%; }
+}
