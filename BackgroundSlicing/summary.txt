@@ -27,3 +27,11 @@
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     animation: shine 0.8s;
 }
+
+[Responsive]
+@media (max-width: 768px) {
+    .gallery-wrapper { flex-direction: column; }
+    .card { height: 300px; }
+    .card:hover { height: 450px; } /* Vertical expansion on mobile */
+}
+
