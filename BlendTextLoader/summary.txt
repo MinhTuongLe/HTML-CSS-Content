@@ -1,23 +1,53 @@
-[Component: BlendTextLoader]
-- Magic: Color inversion via difference blending.
+### BLEND TEXT LOADER - CORE LOGIC ###
 
-[HTML]
+1. HTML (Structure)
 <div class="loader-container">
     <h1 class="text">Loading</h1>
     <div class="spotlight"></div>
 </div>
 
-[CSS]
-.text { color: #fff; }
+2. CSS (Key Styles)
+body {
+    background-color: #0c0c0c;
+    font-family: 'Arial Black', sans-serif;
+}
+
+.text {
+    color: #ffffff;
+    font-size: 100px;
+    font-weight: 900;
+    letter-spacing: 12px;
+}
 
 .spotlight {
     position: absolute;
-    mix-blend-mode: difference; /* Key: inverts colors on overlap */
-    background-color: #fff;
+    width: 130px;
+    height: 130px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    
+    /* Key: Difference blend mode */
+    /* White (spotlight) + Black (bg) = White */
+    /* White (spotlight) + White (text) = Black */
+    mix-blend-mode: difference;
+    
     animation: moveSpotlight 3s ease-in-out infinite;
 }
 
 @keyframes moveSpotlight {
-    0%, 100% { left: -10%; }
-    50% { left: 110%; }
+    0% {
+        left: -10%;
+        transform: translateX(0);
+    }
+    50% {
+        left: 110%;
+        transform: translateX(-100%);
+    }
+    100% {
+        left: -10%;
+        transform: translateX(0);
+    }
 }
+
+3. JS (Logic)
+No JS used. Pure CSS Animation.

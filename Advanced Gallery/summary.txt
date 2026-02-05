@@ -1,0 +1,94 @@
+### NEXT-LEVEL HOVER - CORE LOGIC ###
+
+1. HTML (Structure)
+<div class="gallery-card">
+    <div class="card-image"></div>
+    <div class="card-overlay"></div>
+    <div class="card-content">
+        <div class="initial-label">The Ethereal Glimpse</div>
+        <h2 class="main-title hidden-item">Advanced Gallery Interaction</h2>
+        <p class="description hidden-item">...</p>
+        <div class="metadata hidden-item">
+            <span><i class="fas fa-camera"></i> ISO 100</span>
+            <span><i class="fas fa-expand"></i> 4K Native</span>
+            <span><i class="far fa-heart"></i> 1.2k</span>
+        </div>
+        <button class="view-btn hidden-item">Explore Now</button>
+    </div>
+</div>
+
+2. CSS (Key Styles)
+:root {
+    --primary-color: #00d2ff;
+    --accent-color: #3a7bd5;
+    --curve: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.gallery-card {
+    width: 360px;
+    height: 520px;
+    border-radius: 24px;
+}
+
+.card-image {
+    background-size: cover;
+    transition: transform 1.2s var(--curve);
+}
+
+.gallery-card:hover .card-image {
+    transform: scale(1.15) rotate(1deg);
+}
+
+.card-overlay {
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.95) 90%);
+    opacity: 0.7;
+}
+
+.gallery-card:hover .card-overlay {
+    opacity: 1;
+}
+
+/* Multi-directional reveal */
+.hidden-item {
+    opacity: 0;
+}
+
+.main-title { transform: translateY(-30px); } /* From top */
+.description { transform: translateX(-40px); } /* From left */
+.metadata { transform: translateX(40px); } /* From right */
+.view-btn { transform: translateY(30px); } /* From bottom */
+
+.gallery-card:hover .hidden-item {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
+/* Staggered animation delays */
+.gallery-card:hover .main-title { transition-delay: 0.1s; }
+.gallery-card:hover .description { transition-delay: 0.2s; }
+.gallery-card:hover .metadata { transition-delay: 0.3s; }
+.gallery-card:hover .view-btn { transition-delay: 0.4s; }
+
+/* Button gradient fill */
+.view-btn::before {
+    content: '';
+    position: absolute;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    transition: all 0.5s var(--curve);
+    z-index: -1;
+}
+
+.view-btn:hover {
+    letter-spacing: 3px; /* Text expansion */
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+}
+
+.view-btn:hover::before {
+    left: 0; /* Slide gradient in */
+}
+
+3. JS (Logic)
+No JS used. Pure CSS Animation.

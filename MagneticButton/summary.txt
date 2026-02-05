@@ -1,35 +1,64 @@
-[Component: MagneticButton]
-- Magic: Relative mouse tracking + staggered translation.
+### MAGNETIC BUTTON - CORE LOGIC ###
 
-[HTML]
+1. HTML (Structure)
 <div class="magnetic-area">
     <a href="#" class="btn-magnetic">
         <span class="btn-text">Explore Now</span>
     </a>
 </div>
 
-[CSS]
+2. CSS (Key Styles)
+.magnetic-area {
+    width: 250px;
+    height: 250px; /* Larger than button for attraction zone */
+}
+
 .btn-magnetic {
-    position: relative;
-    will-change: transform;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 25px 60px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 100px;
+    background: transparent;
+    letter-spacing: 2px;
+    will-change: transform; /* Performance optimization */
 }
 
 .btn-text {
-    display: block;
     pointer-events: none;
     will-change: transform;
 }
 
-[JavaScript]
+.btn-magnetic:hover {
+    background: #ffffff;
+    color: #000;
+}
+
+3. JS (Magnetic Logic)
+const area = document.querySelector('.magnetic-area');
+const btn = document.querySelector('.btn-magnetic');
+const text = document.querySelector('.btn-text');
+
 area.addEventListener('mousemove', (e) => {
     const rect = area.getBoundingClientRect();
+    
+    // Calculate distance from mouse to center
     const x = e.clientX - rect.left - rect.width / 2;
     const y = e.clientY - rect.top - rect.height / 2;
-
-    // Different multipliers create depth
+    
+    // Move button (0.5 strength) and text (0.2 strength) for parallax
     btn.style.transform = `translate(${x * 0.5}px, ${y * 0.5}px)`;
     text.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+});
+
+area.addEventListener('mouseleave', () => {
+    btn.style.transform = `translate(0px, 0px)`;
+    text.style.transform = `translate(0px, 0px)`;
+    
+    // Smooth return animation
+    btn.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)';
+    text.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)';
+    
+    setTimeout(() => {
+        btn.style.transition = 'background 0.3s, color 0.3s, border-color 0.3s';
+        text.style.transition = '';
+    }, 500);
 });
